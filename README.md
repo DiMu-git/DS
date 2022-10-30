@@ -1,8 +1,11 @@
 # DS
 First, start webservice1 and webservice2
 Webservice 1
+
 1.Open folder with pycharm .
+
 2. pip install requirements.txt
+
 3. Run following commands:
     1. python manage.py db init
     2. python manage.py db migrate
