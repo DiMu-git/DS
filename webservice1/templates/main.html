@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+      integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $.ajax({
+            url: "http://127.0.0.1:5000/record",
+            type: "GET",
+            success: function (result) {
+                var history = $("#history");
+                for (i = 0; i < result.count; i++) {
+                    history.append('<tr> ' +
+                        '<td>' + result.records[i].movie + '</td>' +
+                        '<td>' + result.records[i].actor + '</td>' +
+                        '<td>' + result.records[i].country + '</td>' +
+                        '<td>' + result.records[i].order + '</td>' +
+                        '<td>' + result.records[i].date + '</td>' +
+                        '</tr>')
+                }
+
+            }, error: function (error, response) {
+                alert("Failed!")
+            }
+        });
+
+        $("#btn1").click(function () {
+            $.ajax({
+                url: "http://127.0.0.1:5000/record",
+                type: "POST",
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify({
+                    movie: $("#movie").val(),
+                    actor: $("#actor").val(),
+                    country: $("#country").val(),
+                    order: $("#order").val()
+                }),
+                success: function (result) {
+                    $("#history").empty()
+                    $("#history").append(
+                        '<tbody>' +
+                        '<tr> <td>movie</td> <td>actor</td> <td>country</td> <td>order by</td> <td>date</td>'
+                    )
+
+                    $.ajax({
+                        url: "http://127.0.0.1:5000/record",
+                        type: "GET",
+                        success: function (result) {
+                            var history = $("#history");
+                            for (i = 0; i < result.count; i++) {
+                                history.append('<tr> ' +
+                                    '<td>' + result.records[i].movie + '</td>' +
+                                    '<td>' + result.records[i].actor + '</td>' +
+                                    '<td>' + result.records[i].country + '</td>' +
+                                    '<td>' + result.records[i].order + '</td>' +
+                                    '<td>' + result.records[i].date + '</td>' +
+                                    '</tr>')
+                            }
+                            history.append('</tbody>')
+                        }, error: function (error, response) {
+                            alert("Failed!")
+                        }
+                    });
+
+                    $.ajax({
+                        url: "http://127.0.0.1:5001/movies/",
+                        type: "POST",
+                        contentType: "application/json",
+                        dataType: "json",
+                        data: JSON.stringify({
+                            movie: $("#movie").val(),
+                            actor: $("#actor").val(),
+                            country: $("#country").val(),
+                        }),
+                        success: function (result) {
+
+
+                            var dict = new Map();
+                            dict.set(0, '<span class="label label-default" style="margin-right: 15px;">')
+                            dict.set(1, '<span class="label label-primary" style="margin-right: 15px;">')
+                            dict.set(2, '<span class="label label-success" style="margin-right: 15px;">')
+                            dict.set(3, '<span class="label label-info" style="margin-right: 15px;">')
+                            dict.set(4, '<span class="label label-warning" style="margin-right: 15px;">')
+                            dict.set(5, '<span class="label label-danger" style="margin-right: 15px;">')
+
+                            var genre = " ";
+                            for (index in result.GenreArray) {
+                                genre += dict.get(parseInt(index)) + '&nbsp' + result.GenreArray[index] + '</span>'
+                            }
+                            s_result = $('#result')
+                            s_result.empty();
+                            s_result.append('<div class="col-md-12">' + '<a href=' + result.HomePage + ' class="thumbnail"' + 'target="_blank"' + '>' + '<img src=' + result.ImagePath + '>' + '</a>' + '</div>')
+                            s_result.append('<div class="jumbotron col-md-12" style="background: white;padding-top:0px;">'
+                                + '<h1>' + result.Title + '</h1>'
+                                + genre
+                                + '<p style="margin-top: 15px">' + result.Overview + '</p>' +
+                                '<li>vote average:' + result.VoteAverage + '</li>' +
+                                '<li>vote count:' + result.VoteCount + '</li>')
+
+
+                            s_result.append('</div>')
+                        }, error: function (error, response) {
+                            alert("Failed! Please check if the server is running and the endpoint is correct!")
+                        }
+                    });
+                }, error: function (error, response) {
+                    alert("Failed! Please check if the server is running and the endpoint is correct!")
+                }
+            });
+            return false;
+        });
+    });
+</script>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="#">
+                <img alt="Brand" src="../static/4771667048657_.pic.jpg" style="height: -webkit-fill-available;">
+            </a>
+            <p class="navbar-text">SAL. A movie search engine bases on TMDB api.</p>
+        </div>
+    </div>
+</nav>
+<!-- Search area -->
+<div class="container">
+    <h1>Search your movie!</h1>
+    <div class="row">
+        <div class="col-md-3">
+            <label for="movie">movie</label>
+            <input type="text" class="form-control" id="movie" placeholder="movie">
+        </div>
+        <div class="col-md-3">
+            <label for="actor">actor</label>
+            <input type="text" class="form-control" id="actor" placeholder="actor">
+        </div>
+    </div>
+    <div class="row" style="margin-top: 10px; margin-bottom: 10px">
+        <div class="col-md-3">
+            <label for="country">language</label>
+            <select id="country">
+                <option>English</option>
+                <option>Korean</option>
+                <option>Irish</option>
+                <option>Indonesian</option>
+                <option>Italian</option>
+                <option>Japanese</option>
+                <option>Korean</option>
+                <option>Latin</option>
+                <option>Thai</option>
+                <option>Mandarin</option>
+                <option>Cantonese</option>
+                <option>Greek</option>
+                <option>German</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label for="order">order by</label>
+            <select id="order">
+                <option>vote</option>
+                <option>view</option>
+                <option>mark</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-1">
+            <button type="button" class="btn btn-default" id="btn1">Search</button>
+        </div>
+    </div>
+</div>
+<!-- Results -->
+<div class="container">
+    <h1>Results</h1>
+    <div class="row" id="result">
+    </div>
+</div>
+<!-- Histories -->
+<div class="container">
+    <h1>Search history</h1>
+
+    <table class="table" id="history">
+        <!-- On rows -->
+        <tr>
+            <td>movie</td>
+            <td>actor</td>
+            <td>country</td>
+            <td>order by</td>
+            <td>date</td>
+        </tr>
+    </table>
+</div>
+
+<footer class="bg-light text-center text-lg-start">
+    <!-- Grid container -->
+    <div class="container p-4">
+        <!--Grid row-->
+        <div class="row">
+            <!--Grid column-->
+            <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+                <h5 class="text-uppercase">Learn and exercise only</h5>
+
+                <p>
+                    This product is for study use only and will not be used for any commercial purposes
+                </p>
+            </div>
+            <!--Grid column-->
+
+            <!--Grid column-->
+            <div class="col-lg-6 col-md-12 mb-4 mb-md-0">
+                <h5 class="text-uppercase">On going</h5>
+
+                <p>
+                    Temporarily only supports a single movie search, the subsequent function continues to update
+                </p>
+            </div>
+            <!--Grid column-->
+        </div>
+        <!--Grid row-->
+    </div>
+    <!-- Grid container -->
+
+    <!-- Copyright -->
+    <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+        © 2022 Copyright:
+        <a class="text-dark" href="https://www.themoviedb.org/">TMDB</a>
+        @ Email:
+        <a class="text-dark">moody200011123@gmail.com </a>
+        @ phone:
+        <a class="text-dark"> 19982038995</a>
+
+    </div>
+    <!-- Copyright -->
+</footer>
+
+
+</body>
+
+
+</html>
+
+
+
