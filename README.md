@@ -22,6 +22,7 @@ First, start webservice1 and webservice2
 2.pip install requirements.txt
 
 3.Run the following commands:
+
     1.python main.py
 
 After, use the browser open webservice1/templates/main.html. Note that some images may not be displayed due to a path problem caused by your computer's operating system.
